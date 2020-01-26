@@ -1,0 +1,98 @@
+---
+title: "Stock Market Prediction"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    runtime: shiny
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+#install.packages("pdfetch")
+library(flexdashboard)
+library(quantmod)
+library(prophet)
+library(pdfetch)
+library(dygraphs)
+```
+
+```{r }
+stock_data <- reactive({
+  withProgress({
+        setProgress(message = "Getting Data...")
+  ip <- input$stock_id
+  sdata <- pdfetch_YAHOO(ip)
+  s <- log(sdata[,6])
+  Date <- row.names(as.data.frame(as.xts(sdata)))
+  d <- data.frame(as.POSIXct(Date),as.character(s))
+  row.names(d) <- c()
+  names(d)[1] <- "ds"
+  names(d)[2] <- "y"
+  return(d)
+    })
+  })
+  
+```
+
+Sidebar {.sidebar}
+=====================================
+
+```{r}
+
+textInput("stock_id", "Enter Stock ID here", "AMZN")
+
+```
+
+Main Page
+===========================
+
+
+### Stock Prices
+
+```{r}
+renderDygraph({
+  withProgress(message = "Loading Predictions...", {
+  sd <- stock_data()  
+  n <- prophet(sd)
+  future <- make_future_dataframe(n,periods = 365)
+  forecast <- predict(n,future)
+  dyplot.prophet(n,forecast)
+ })
+})
+
+
+```
+
+
+Summary
+========================
+  
+```{r}
+renderPrint({
+  withProgress(message = "Loading ...", {
+  sd <- stock_data()  
+  n <- prophet(sd)
+  future <- make_future_dataframe(n,periods = 365)
+  forecast <- predict(n,future)
+  pred <- forecast$yhat[1:nrow(sd)]
+  actual <- n$history$y
+  a <- summary(lm(pred~actual))
+  a
+  })
+})
+```
+
+
+
+About Report
+========================================
+
+Created by: Vignesh EA
+
+Confidential: Nothing like that!
+
+
+
+
+
+
