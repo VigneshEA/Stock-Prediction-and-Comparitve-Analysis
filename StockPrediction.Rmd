@@ -49,7 +49,7 @@ Sidebar {.sidebar}
 
 ```{r}
 
-textInput("stock_id", "Enter Stock ID here", "AMZN")
+textInput("stock_id", "Enter Stock ID here", "GOOGL")
 
 ```
 
