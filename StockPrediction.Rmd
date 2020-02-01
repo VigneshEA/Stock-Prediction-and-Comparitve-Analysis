@@ -17,11 +17,21 @@ library(dygraphs)
 ```
 
 ```{r }
+
+MinMaxScaling <- function(x){
+  return((x-min(x))/(max(x)-min(x)))
+}
+
+zscorestd <- function(x){
+  return((x-mean(x))/sd(x))
+}
+
 stock_data <- reactive({
   withProgress({
         setProgress(message = "Getting Data...")
   ip <- input$stock_id
   sdata <- pdfetch_YAHOO(ip)
+  #s <- MinMaxScaling(sdata[,6])
   s <- log(sdata[,6])
   Date <- row.names(as.data.frame(as.xts(sdata)))
   d <- data.frame(as.POSIXct(Date),as.character(s))
