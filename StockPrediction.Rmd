@@ -2,9 +2,9 @@
 title: "Stock Market Prediction"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: columns
+    orientation: rows
     runtime: shiny
-    vertical_layout: fill
+    vertical_layout: scroll
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +14,7 @@ library(quantmod)
 library(prophet)
 library(pdfetch)
 library(dygraphs)
+library(plotly)
 ```
 
 ```{r }
@@ -65,12 +66,69 @@ renderDygraph({
   sd <- stock_data()  
   n <- prophet(sd)
   future <- make_future_dataframe(n,periods = 365)
-  forecast <- predict(n,future,envir = .GlobalEnv)
+  forecast <- predict(n,future)
   dyplot.prophet(n,forecast)
  })
 })
 
 
+```
+
+Components of Time series
+===================================
+
+
+### Overall Trend 
+
+```{r}
+renderPlot({
+  withProgress(message = "Loading ...", {
+  sd <- stock_data()  
+  n <- prophet(sd)
+  future <- make_future_dataframe(n,periods = 365)
+  forecast <- predict(n,future)
+  p <- prophet_plot_components(n,forecast)
+  p[1]
+  })
+})
+```
+
+Row
+-----------------------------------
+
+
+### Weekly Trend 
+
+```{r}
+renderPlot({
+  withProgress(message = "Loading ...", {
+  sd <- stock_data()  
+  n <- prophet(sd)
+  future <- make_future_dataframe(n,periods = 365)
+  forecast <- predict(n,future)
+  p <- prophet_plot_components(n,forecast)
+  p[2]
+  })
+})
+```
+
+
+Row
+--------------------------------------
+
+### Yearly Trend 
+
+```{r}
+renderPlot({
+  withProgress(message = "Loading ...", {
+  sd <- stock_data()  
+  n <- prophet(sd)
+  future <- make_future_dataframe(n,periods = 365)
+  forecast <- predict(n,future)
+  p <- prophet_plot_components(n,forecast)
+  p[3]
+  })
+})
 ```
 
 
