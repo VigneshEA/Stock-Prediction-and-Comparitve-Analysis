@@ -32,7 +32,7 @@ stock_data <- reactive({
   ip <- input$stock_id
   sdata <- pdfetch_YAHOO(ip)
   #s <- MinMaxScaling(sdata[,6])
-  s <- log(sdata[,6])
+  s <- log(sdata[,4])
   Date <- row.names(as.data.frame(as.xts(sdata)))
   d <- data.frame(as.POSIXct(Date),as.character(s))
   row.names(d) <- c()
@@ -65,7 +65,7 @@ renderDygraph({
   sd <- stock_data()  
   n <- prophet(sd)
   future <- make_future_dataframe(n,periods = 365)
-  forecast <- predict(n,future)
+  forecast <- predict(n,future,envir = .GlobalEnv)
   dyplot.prophet(n,forecast)
  })
 })
